@@ -27,6 +27,12 @@ function createSelectOptions(data) {
 
   new SlimSelect({
     select: '.breed-select',
+    settings: {
+      showSearch: true,
+      searchText: 'Sorry nothing to see here',
+      searchPlaceholder: 'Search for the your favorite cat!',
+      searchHighlight: true,
+    },
   });
 }
 
