@@ -1,67 +1,58 @@
-// import axios from 'axios';
-// axios.defaults.headers.common['x-api-key'] =
-//   'live_nOr0ffgglv54os8QMllnWrZxGl7QAeBmahHlri8B5TzOK0ViN2gR9fQPv45iz86z';
-
 import { Report } from 'notiflix/build/notiflix-report-aio';
 import SlimSelect from 'slim-select';
-import { fetchBreeds } from './cat-api';
-// import { fetchCatByBreed } from './cat-api';
+import 'slim-select/dist/slimselect.css';
+import { fetchBreeds, fetchCatByBreed } from './cat-api';
+
 const refs = {
-  input: document.querySelector('.breed-select'),
-  dive: document.querySelector('.cat-info'),
+  select: document.querySelector('.breed-select'),
+  div: document.querySelector('.cat-info'),
   loader: document.querySelector('.loader'),
   error: document.querySelector('.error'),
 };
-refs.input.hidden = true;
+
+refs.select.hidden = true;
 refs.error.classList.add('visually-hidden');
 
-refs.input.addEventListener('change', fetchCatByBreed);
-
 fetchBreeds()
-  .then(data => createInputOptions(data))
+  .then(data => createSelectOptions(data))
   .catch(err => Report.failure(refs.error.textContent))
   .finally(() => refs.loader.classList.add('visually-hidden'));
 
-function createInputOptions(data) {
-  data.map(({ reference_image_id, name }) => {
-    const options = `<option value = ${reference_image_id} > ${name} </option> `;
+function createSelectOptions(data) {
+  let options = data
+    .map(({ id, name }) => `<option value =${id}>${name}</option>`)
+    .join();
+  refs.select.insertAdjacentHTML('beforeend', options);
+  refs.select.hidden = false;
 
-    refs.input.insertAdjacentHTML('afterbegin', options);
+  new SlimSelect({
+    select: '.breed-select',
   });
-  refs.input.hidden = false;
 }
 
-function fetchCatByBreed(event) {
-  refs.loader.classList.remove('visually-hidden');
-  const idCat = event.currentTarget.value;
-  console.log(idCat);
-  return fetch(
-    `https://api.thecatapi.com/v1/images/${idCat}?api-key=live_nOr0ffgglv54os8QMllnWrZxGl7QAeBmahHlri8B5TzOK0ViN2gR9fQPv45iz86z`
-  )
-    .then(respons => {
-      return respons.json();
-    })
+refs.select.addEventListener('change', createCardCat);
 
-    .then(data => {
-      createCardCat(data);
-    })
+function createCardCat(event) {
+  refs.loader.classList.remove('visually-hidden');
+
+  let idCat = event.target.value;
+  // console.log(idCat);
+
+  fetchCatByBreed(idCat)
+    .then(data => createMarckUpCardCat(data))
     .catch(error => Report.failure(refs.error.textContent))
     .finally(() => refs.loader.classList.add('visually-hidden'));
 }
 
-function createCardCat(data) {
-  const { url, breeds } = data;
+function createMarckUpCardCat(data) {
+  const { url } = data[0];
+  const { name, description, temperament } = data[0].breeds[0];
 
-  let catMarck = breeds
-    .map(
-      ({ name, temperament, description }) =>
-        `<img  class= "catImg" src="${url}" alt="${name}">
-        <div class="info">
-   <h2 class="name-title"> ${name} </h2>
-   <h3 class="description">${description}</h3>
-   <h3 class="temperament">Temperament:${temperament}</h3></div>`
-    )
-    .join();
+  const catMarkUp = `<img  class= "catImg" src="${url}" alt="${name}">
+    <div class="info">
+    <h2 class="name-title"> ${name} </h2>
+    <h3 class="description">${description}</h3>
+    <h3 class="temperament">Temperament:${temperament}</h3></div>`;
 
-  return (refs.dive.innerHTML = catMarck);
+  return (refs.div.innerHTML = catMarkUp);
 }
