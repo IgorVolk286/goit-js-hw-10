@@ -15,7 +15,13 @@ refs.error.classList.add('visually-hidden');
 
 fetchBreeds()
   .then(data => createSelectOptions(data))
-  .catch(err => Report.failure(refs.error.textContent))
+  .catch(err =>
+    Report.failure(
+      ' DOWNLOAD FAILURE',
+      'Oops! Something went wrong! Try reloading the page! <br/><br/>',
+      ' Reload '
+    )
+  )
   .finally(() => refs.loader.classList.add('visually-hidden'));
 
 function createSelectOptions(data) {
@@ -46,7 +52,13 @@ function createCardCat(event) {
 
   fetchCatByBreed(idCat)
     .then(data => createMarckUpCardCat(data))
-    .catch(error => Report.failure(refs.error.textContent))
+    .catch(error =>
+      Report.failure(
+        ' DOWNLOAD FAILURE',
+        'Oops! Something went wrong! Try reloading the page! <br/><br/>',
+        ' Reload '
+      )
+    )
     .finally(() => refs.loader.classList.add('visually-hidden'));
 }
 
